@@ -32,11 +32,47 @@ public_users.get('/',function (req, res) {
     res.send(JSON.stringify(books, null, 4));
 });
 
+// Get the book list available in the shop - with promise
+public_users.get('/async/',function (req, res) {
+    getAllBooksPromise.then(
+        (data) => {res.send(data);},
+        (err) => {res.status(500).json(err);}
+    );
+});
+
+let getAllBooksPromise = new Promise((resolve,reject) => {
+    setTimeout(() => {
+        try {
+            const data = JSON.stringify(books, null, 4);
+            resolve(data);
+        } catch (err) {
+            reject(err);
+        }
+    },6000)});
+
 // Get book details based on ISBN
 public_users.get('/isbn/:isbn',function (req, res) {
     const isbn = req.params.isbn;
     res.send(JSON.stringify(books[isbn], null, 4));
  });
+
+// Get book details based on ISBN - with promise
+public_users.get('/async/isbn/:isbn',function (req, res) {
+    getBookByISBNPromise(req.params.isbn).then(
+        (data) => {res.send(data);},
+        (err) => {res.status(500).json(err);}
+    );
+ });
+
+ let getBookByISBNPromise = (isbn) => new Promise((resolve,reject) => {
+    setTimeout(() => {
+        try {
+            const data = JSON.stringify(books[isbn], null, 4);
+            resolve(data);
+        } catch (err) {
+            reject(err);
+        }
+    },6000)});
   
 // Get book details based on author
 public_users.get('/author/:author',function (req, res) {
@@ -48,6 +84,27 @@ public_users.get('/author/:author',function (req, res) {
     res.send(JSON.stringify(booksByAuthor, null, 4));
 });
 
+// Get book details based on author - with promise
+public_users.get('/async/author/:author',function (req, res) {
+    getBooksByAuthorPromise(req.params.author).then(
+        (data) => {res.send(data);},
+        (err) => {res.status(500).json(err);}
+    );
+});
+
+let getBooksByAuthorPromise = (author) => new Promise((resolve,reject) => {
+    setTimeout(() => {
+        try {
+            var booksByAuthor = Object.keys(books)
+                                      .filter(isbn => books[isbn].author === author)
+                                      .reduce( (val, key) => (val[key] = books[key], val), {} );
+            const data = JSON.stringify(booksByAuthor, null, 4);
+            resolve(data);
+        } catch (err) {
+            reject(err);
+        }
+    },6000)})
+
 // Get all books based on title
 public_users.get('/title/:title',function (req, res) {
     const title = req.params.title;
@@ -57,6 +114,27 @@ public_users.get('/title/:title',function (req, res) {
 
     res.send(JSON.stringify(booksByTitle, null, 4));
 });
+
+// Get all books based on title - with promise
+public_users.get('/async/title/:title',function (req, res) {
+    getBookByTitlePromise(req.params.title).then(
+        (data) => {res.send(data);},
+        (err) => {res.status(500).json(err);}
+    );
+});
+
+let getBookByTitlePromise = (title) => new Promise((resolve,reject) => {
+    setTimeout(() => {
+        try {
+            var booksByTitle = Object.keys(books)
+                                      .filter(isbn => books[isbn].title === title)
+                                      .reduce( (val, key) => (val[key] = books[key], val), {} );
+            const data = JSON.stringify(booksByTitle, null, 4);
+            resolve(data);
+        } catch (err) {
+            reject(err);
+        }
+    },6000)})
 
 //  Get book review
 public_users.get('/review/:isbn',function (req, res) {
